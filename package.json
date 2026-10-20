@@ -5,21 +5,22 @@
   "type": "module",
   "description": "Cliente Todoist offline para Amazfit Bip 6",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.15.0"
   },
   "scripts": {
     "test": "node --test",
     "lint": "node scripts/lint.mjs",
-    "build": "node scripts/zeus.cjs build",
-    "dev": "node scripts/zeus.cjs dev",
-    "preview": "node scripts/zeus.cjs preview",
-    "zeus": "node scripts/zeus.cjs"
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/zepp.mjs dev",
+    "preview": "node scripts/zepp.mjs preview",
+    "zeus": "node scripts/zeus.cjs",
+    "build:zeus": "node scripts/build.mjs --zeus"
   },
   "dependencies": {
     "@zeppos/zml": "0.0.43"
   },
   "devDependencies": {
     "@zeppos/zeus-cli": "1.9.3",
-    "@zeppos/device-types": "4.0.0"
+    "@zeppos/zpm": "3.1.5"
   }
 }

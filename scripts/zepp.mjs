@@ -1,0 +1,10 @@
+import { resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { root, prepareProduction } from './production.mjs';
+const [command, ...args] = process.argv.slice(2);
+if (!['dev', 'preview'].includes(command)) throw new Error('Use dev ou preview.');
+const stage = prepareProduction();
+if (command === 'dev') process.stdout.write('Fontes de produção preparadas. Reinicie npm run dev após alterar as fontes.\n');
+const result = spawnSync(process.execPath, [resolve(root, 'scripts/zeus.cjs'), command, ...args], { cwd: stage, stdio: 'inherit' });
+if (result.error) throw result.error;
+process.exit(result.status || 0);

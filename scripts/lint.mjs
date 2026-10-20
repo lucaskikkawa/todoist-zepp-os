@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 const roots = ['app.js', 'app-side', 'page', 'setting', 'shared', 'scripts', 'tests'];
 let failures = 0;
 function scan(path) {
-  if (!/\.(?:js|mjs)$/.test(path)) {
+  if (!/\.(?:js|mjs|cjs)$/.test(path)) {
     try { for (const entry of readdirSync(path, { withFileTypes: true })) scan(`${path}/${entry.name}`); } catch { /* absent optional folder */ }
     return;
   }

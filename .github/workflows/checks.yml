@@ -17,6 +17,7 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - run: python3 tests/qa/verify-artifact.py dist/*.zab
       - uses: actions/upload-artifact@v4
         with:
           name: pulso-0.1.0-bip6

@@ -4,25 +4,64 @@
     "appId": 1052671,
     "appName": "Pulso",
     "appType": "app",
-    "version": { "code": 1, "name": "0.1.0" },
+    "version": {
+      "code": 1,
+      "name": "0.1.0"
+    },
     "icon": "icon.png",
     "vender": "Lucas Kikkawa",
     "description": "Suas tarefas Todoist no pulso, mesmo offline"
   },
-  "runtime": { "apiVersion": { "compatible": "4.2.0", "target": "4.2.0", "minVersion": "4.2.0" } },
-  "permissions": [],
+  "runtime": {
+    "apiVersion": {
+      "compatible": "4.2.0",
+      "target": "4.2.0",
+      "minVersion": "4.2.0"
+    }
+  },
+  "permissions": [
+    "data:os.device.info"
+  ],
   "targets": {
     "bip6": {
       "module": {
-        "page": { "pages": ["page/tasks/index", "page/detail/index", "page/pending/index", "page/history/index"] },
-        "app-side": { "path": "app-side/index" },
-        "setting": { "path": "setting/index" }
+        "page": {
+          "pages": [
+            "page/tasks/index",
+            "page/detail/index",
+            "page/pending/index",
+            "page/history/index"
+          ]
+        },
+        "app-side": {
+          "path": "app-side/index"
+        },
+        "setting": {
+          "path": "setting/index"
+        }
       },
-      "platforms": [{ "deviceSource": 9765120 }, { "deviceSource": 9765121 }, { "deviceSource": 10158337 }],
+      "platforms": [
+        {
+          "deviceSource": 9765120
+        },
+        {
+          "deviceSource": 9765121
+        },
+        {
+          "deviceSource": 10158337
+        }
+      ],
       "designWidth": 390
     }
   },
-  "i18n": { "pt-BR": { "appName": "Pulso" }, "en-US": { "appName": "Pulso" } },
+  "i18n": {
+    "pt-BR": {
+      "appName": "Pulso"
+    },
+    "en-US": {
+      "appName": "Pulso"
+    }
+  },
   "defaultLanguage": "pt-BR",
   "debug": false
 }
