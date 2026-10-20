@@ -267,6 +267,32 @@ test('explicit conflict resolution is local and does not create an API command',
   assert.equal(remote.applied.size, 0);
 });
 
+test('watch conflict survives an empty phone journal and requires explicit resolution', async () => {
+  const remote = server();
+  const { coordinator: sync, backing, store } = coordinator(remote);
+  const op = { ...operation(rawTask('1')), state: 'conflict' };
+  const results = await sync.processOperations('account-a', [op]);
+  assert.deepEqual(results, [{ uuid: op.uuid, state: 'conflict', code: 'REQUIRES_REVIEW' }]);
+  assert.equal(store.get('account-a', op.uuid).result.state, 'conflict');
+  assert.ok(remote.requests.every((request) => request.path.endsWith('/user')));
+  assert.equal(remote.applied.size, 0);
+  // Even a stale watch message cannot downgrade the persisted conflict to retry.
+  const { coordinator: restarted } = coordinator(remote, backing);
+  assert.equal((await restarted.processOperations('account-a', [{ ...op, state: 'pending' }]))[0].state, 'conflict');
+  assert.equal(restarted.resolve('account-a', op.uuid).state, 'resolved');
+  assert.equal((await restarted.processOperations('account-a', [op]))[0].state, 'resolved');
+  assert.equal(remote.applied.size, 0);
+});
+
+test('unknown and terminal watch operation states cannot create fresh commands', async () => {
+  const remote = server();
+  const { coordinator: sync } = coordinator(remote);
+  for (const state of ['confirmed', 'resolved', 'unexpected', undefined]) {
+    await assert.rejects(sync.processOperations('account-a', [{ ...operation(rawTask('1')), state }]), { code: 'INVALID_OPERATION' });
+  }
+  assert.equal(remote.applied.size, 0);
+});
+
 test('side store rejects both corrupt copies and verifies writes before sending', async () => {
   const remote = server();
   const backing = storage();

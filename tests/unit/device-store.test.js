@@ -332,3 +332,22 @@ test('list grouping derives default today from supplied watch timezone offset', 
   install(store, [fixtureTask(1, { due: { date: '2026-10-20' } })]);
   assert.equal(store.listTasks({ group: 'today', timezoneOffsetMinutes: 180 }).total, 1);
 });
+
+test('reseeded UUID generator cannot reuse durable event or command IDs after restart', () => {
+  const { fs, options, store } = setup(); install(store, [fixtureTask(1), fixtureTask(2)]); store.completeTask('1');
+  const filesBefore = Array.from(fs.files.entries());
+  let id = 0;
+  const restarted = createDeviceStore(fs, { ...options, uuid: () => `uuid-${++id}` });
+  assert.throws(() => restarted.completeTask('2'), /UUID_COLLISION/);
+  assert.equal(restarted.history().length, 1);
+  assert.equal(restarted.pendingOperations().length, 1);
+  assert.equal(restarted.getTask('2').id, '2');
+  assert.deepEqual(Array.from(fs.files.entries()), filesBefore);
+});
+
+test('completion and operation IDs must differ even within the first event', () => {
+  const { fs, options, store } = setup(); install(store, [fixtureTask(1)]);
+  const duplicateGenerator = createDeviceStore(fs, { ...options, uuid: () => 'same-id' });
+  assert.throws(() => duplicateGenerator.completeTask('1'), /UUID_COLLISION/);
+  assert.equal(duplicateGenerator.history().length, 0);
+});

@@ -7,7 +7,8 @@ const terminal = new Set(['confirmed', 'conflict', 'resolved', 'blocked_recurrin
 
 function validateOperation(op, accountId) {
   if (!op || typeof op.uuid !== 'string' || !/^[a-zA-Z0-9-]{8,80}$/.test(op.uuid) ||
-      op.accountId !== accountId || typeof op.taskId !== 'string' || !op.baseTask || op.baseTask.id !== op.taskId) return false;
+      op.accountId !== accountId || typeof op.taskId !== 'string' || !op.baseTask || op.baseTask.id !== op.taskId ||
+      !['pending', 'retry', 'conflict', 'blocked_recurring'].includes(op.state)) return false;
   if (op.state === 'blocked_recurring' && op.command === null) return true;
   const c = op.command;
   return c && c.uuid === op.uuid && c.type === 'item_complete' && c.args && c.args.id === op.taskId &&
@@ -70,6 +71,12 @@ export class SyncCoordinator {
           results.push(resultOf(record));
           if (result.state !== 'confirmed') blockedTasks.add(op.taskId);
         };
+        // The watch is also durable authority for a detected conflict. Rebuilding
+        // the phone journal must never turn that decision into a fresh retry.
+        if (op.state === 'conflict') {
+          finish({ state: 'conflict', code: 'REQUIRES_REVIEW' });
+          continue;
+        }
         if (op.state === 'blocked_recurring' || (op.baseTask.due && op.baseTask.due.is_recurring)) {
           finish({ state: 'blocked_recurring', code: 'RECURRING_HISTORY_UNSUPPORTED' });
           continue;

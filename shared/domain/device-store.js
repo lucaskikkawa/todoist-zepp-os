@@ -201,6 +201,9 @@ export class DeviceStore {
     const nextDue = isSimpleDaily(task) ? nextDailyDate(task.due.date) : null;
     const eventId = this.uuid();
     const uuid = this.uuid();
+    if (typeof eventId !== 'string' || !eventId || typeof uuid !== 'string' || !uuid) fail('INVALID_UUID');
+    const existingIds = new Set(this.journal.state.completions.map((event) => event.id).concat(this.journal.state.operations.map((operation) => operation.uuid)));
+    if (eventId === uuid || existingIds.has(eventId) || existingIds.has(uuid)) fail('UUID_COLLISION');
     const event = {
       id: eventId, taskId: task.id, title: task.title, accountId: this.metadata().accountId,
       occurrence: task.due ? clone(task.due) : null, originalDue: original.due,
